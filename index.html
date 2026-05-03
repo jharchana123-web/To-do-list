@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Green Haven Plant Store</title>
+  <style>
+    :root {
+      --green-900: #163826;
+      --green-700: #2f6d4b;
+      --green-500: #4a9b67;
+      --green-100: #e9f5ee;
+      --cream: #fdfaf3;
+      --text: #1f2a24;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      color: var(--text);
+      background: var(--cream);
+    }
+
+    header {
+      background: linear-gradient(120deg, var(--green-900), var(--green-700));
+      color: white;
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    nav a {
+      color: white;
+      text-decoration: none;
+      margin-left: 1rem;
+      font-weight: bold;
+    }
+
+    .hero {
+      text-align: center;
+      padding: 4rem 1.5rem;
+      background: var(--green-100);
+    }
+
+    .hero h1 { margin: 0 0 1rem; font-size: 2.4rem; }
+    .hero p { max-width: 640px; margin: 0 auto 1.5rem; line-height: 1.6; }
+
+    .btn {
+      background: var(--green-700);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 0.75rem 1.2rem;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    main { max-width: 1100px; margin: 2rem auto; padding: 0 1rem; }
+
+    .section-title { margin: 0 0 1rem; }
+
+    .products {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1rem;
+    }
+
+    .card {
+      background: #fff;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .card img {
+      width: 100%;
+      height: 180px;
+      object-fit: cover;
+    }
+
+    .card-body {
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      flex: 1;
+    }
+
+    .price { color: var(--green-700); font-weight: bold; }
+
+    .cart {
+      margin-top: 2.5rem;
+      background: #fff;
+      padding: 1rem;
+      border-radius: 12px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+    }
+
+    .cart ul { padding-left: 1.2rem; }
+    .cart-total { font-size: 1.1rem; font-weight: bold; }
+
+    footer {
+      margin-top: 3rem;
+      text-align: center;
+      padding: 1.2rem;
+      background: var(--green-900);
+      color: #e8f3ed;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <strong>🌿 Green Haven</strong>
+    <nav>
+      <a href="#shop">Shop</a>
+      <a href="#cart">Cart</a>
+      <a href="#contact">Contact</a>
+    </nav>
+  </header>
+
+  <section class="hero">
+    <h1>Bring Nature Home</h1>
+    <p>Discover healthy indoor plants, stylish pots, and beginner-friendly kits to make your home greener.</p>
+    <button class="btn" onclick="document.getElementById('shop').scrollIntoView({behavior:'smooth'})">Shop Now</button>
+  </section>
+
+  <main>
+    <section id="shop">
+      <h2 class="section-title">Featured Plants</h2>
+      <div id="productGrid" class="products"></div>
+    </section>
+
+    <section id="cart" class="cart">
+      <h2>Your Cart</h2>
+      <ul id="cartItems"></ul>
+      <p class="cart-total">Total: $<span id="total">0.00</span></p>
+    </section>
+  </main>
+
+  <footer id="contact">
+    <p>Contact: hello@greenhavenplants.com | +1 (555) 018-PLNT</p>
+  </footer>
+
+  <script>
+    const products = [
+      { id: 1, name: 'Monstera Deliciosa', price: 34.99, image: 'https://images.unsplash.com/photo-1521335629791-ce4aec67dd47?auto=format&fit=crop&w=800&q=60' },
+      { id: 2, name: 'Snake Plant', price: 19.99, image: 'https://images.unsplash.com/photo-1493666438817-866a91353ca9?auto=format&fit=crop&w=800&q=60' },
+      { id: 3, name: 'Peace Lily', price: 24.5, image: 'https://images.unsplash.com/photo-1463320726281-696a485928c7?auto=format&fit=crop&w=800&q=60' },
+      { id: 4, name: 'Pothos Hanging Basket', price: 21.75, image: 'https://images.unsplash.com/photo-1501004318641-b39e6451bec6?auto=format&fit=crop&w=800&q=60' }
+    ];
+
+    const cart = [];
+
+    const grid = document.getElementById('productGrid');
+    const cartItems = document.getElementById('cartItems');
+    const totalEl = document.getElementById('total');
+
+    function renderProducts() {
+      products.forEach(product => {
+        const card = document.createElement('article');
+        card.className = 'card';
+        card.innerHTML = `
+          <img src="${product.image}" alt="${product.name}" />
+          <div class="card-body">
+            <h3>${product.name}</h3>
+            <p class="price">$${product.price.toFixed(2)}</p>
+            <button class="btn">Add to Cart</button>
+          </div>
+        `;
+        card.querySelector('button').addEventListener('click', () => addToCart(product));
+        grid.appendChild(card);
+      });
+    }
+
+    function addToCart(product) {
+      cart.push(product);
+      renderCart();
+    }
+
+    function renderCart() {
+      cartItems.innerHTML = '';
+      cart.forEach(item => {
+        const li = document.createElement('li');
+        li.textContent = `${item.name} - $${item.price.toFixed(2)}`;
+        cartItems.appendChild(li);
+      });
+      const total = cart.reduce((sum, item) => sum + item.price, 0);
+      totalEl.textContent = total.toFixed(2);
+    }
+
+    renderProducts();
+  </script>
+</body>
+</html>
